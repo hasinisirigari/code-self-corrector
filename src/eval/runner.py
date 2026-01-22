@@ -57,13 +57,20 @@ def run_evaluation(
                 if n <= 3:
                     pass_at_3 += 1
             
+
+            error_types = []
+            for att in result.attempts:
+                if att.error:
+                    error_types.append(att.error.category.value)
+                
             results.append({
                 "task_id": p.task_id,
                 "source": p.source,
                 "status": result.status,
                 "attempts": len(result.attempts),
                 "time": elapsed,
-                "solved": result.solved
+                "solved": result.solved,
+                "error_types": error_types
             })
             
             progress.advance(task)
