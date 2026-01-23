@@ -33,22 +33,23 @@ def _logic_prompt(code: str, error: ErrorInfo, tests: str) -> str:
     if tests:
         lines = [l.strip() for l in tests.split('\n') if 'assert' in l]
         if lines:
-            test_hints = "\n\nThese are the expected behaviors:\n" + "\n".join(lines[:5])
+            test_hints = "\n\nExpected behavior from tests:"
+            for line in lines[:5]:
+                test_hints += f"\n  {line}"
+            test_hints += "\n\nStudy these assertions. They show EXACTLY what the function should return for each input."
     
-    failing = ", ".join(error.failing_tests) if error.failing_tests else "unknown"
-    
-    return f"""This code returns wrong output. The logic is incorrect.
+    return f"""The code below produces WRONG OUTPUT.
 ```python
 {code}
 ```
-
-Failing tests: {failing}
 {test_hints}
 
-The assertions show what the function SHOULD return. Study them carefully.
-Fix the logic to match the expected output.
-Return ONLY the fixed code, no explanation."""
+Think step by step:
+1. What does each test expect?
+2. What is the current code actually doing?
+3. How should the logic change?
 
+Return ONLY the fixed code, no explanation."""
 
 def _generic_prompt(code: str, error: ErrorInfo) -> str:
     return f"""This code has an error. Fix it.

@@ -97,7 +97,43 @@ def _chart_fixability(fixability: dict, output_dir: str):
     plt.savefig(f"{output_dir}/error_fixability.png", dpi=150)
     plt.close()
 
-
+def chart_model_comparison(comparison_path: str, output_dir: str = "reports"):
+    with open(comparison_path) as f:
+        data = json.load(f)
+    
+    Path(output_dir).mkdir(exist_ok=True)
+    
+    fig, ax = plt.subplots(figsize=(10, 6))
+    
+    models = ["Ollama (7B)", "Groq (70B)"]
+    pass1 = [data["ollama"]["pass_at_1"], data["groq"]["pass_at_1"]]
+    pass3 = [data["ollama"]["pass_at_3"], data["groq"]["pass_at_3"]]
+    
+    x = range(len(models))
+    width = 0.35
+    
+    bars1 = ax.bar([i - width/2 for i in x], pass1, width, label="Pass@1", color="#ff6b6b")
+    bars2 = ax.bar([i + width/2 for i in x], pass3, width, label="Pass@3", color="#48dbfb")
+    
+    ax.set_ylabel("Success Rate (%)")
+    ax.set_title("Model Comparison: Pass@k Performance")
+    ax.set_xticks(x)
+    ax.set_xticklabels(models)
+    ax.legend()
+    ax.set_ylim(0, 100)
+    ax.spines["top"].set_visible(False)
+    ax.spines["right"].set_visible(False)
+    
+    for bar, val in zip(bars1, pass1):
+        ax.text(bar.get_x() + bar.get_width()/2, bar.get_height() + 1, f"{val}%", ha="center")
+    for bar, val in zip(bars2, pass3):
+        ax.text(bar.get_x() + bar.get_width()/2, bar.get_height() + 1, f"{val}%", ha="center")
+    
+    plt.tight_layout()
+    plt.savefig(f"{output_dir}/model_comparison.png", dpi=150)
+    plt.close()
+    print(f"Saved {output_dir}/model_comparison.png")
+    
 if __name__ == "__main__":
     import sys
     if len(sys.argv) > 1:
