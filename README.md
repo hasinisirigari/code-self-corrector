@@ -8,11 +8,10 @@
 
 A system that generates Python code using local LLMs, tests it in Docker sandboxes, and automatically fixes errors through iterative feedback.
 
-![Pass@k Performance](reports/pass_rate_comparison.png)
-
 ## Results
+Results shown below are from pilot evaluations conducted on limited subsets of the HumanEval and MBPP benchmarks (n ≈ 30). These experiments are intended to validate system behavior, error patterns, and the effect of iterative feedback rather than to report final benchmark performance. Full-scale evaluation on complete benchmark suites is planned as future work.
 
-### HumanEval Benchmark
+### HumanEval Benchmark 
 
 | Metric | Codellama-7B | Llama-70B |
 |--------|--------------|-----------|
@@ -30,6 +29,10 @@ A system that generates Python code using local LLMs, tests it in Docker sandbox
 | Pass@1 | 30.0% |
 | Pass@3 | 40.0% |
 | Improvement | 33.3% |
+
+![Error Distribution](pilot-reports/error_taxonomy.png)
+![Model Comparision](pilot-reports/model_comparison.png)
+
 
 ## How It Works
 
