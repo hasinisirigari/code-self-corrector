@@ -1,5 +1,11 @@
 # Self-Correcting Code Generator
 
+## Demo
+
+🎬 **[Success on First Attempt](https://youtu.be/0FOmyAHn6MM)** - System generates correct code immediately
+
+🎬 **[Self-Correction in Action](https://youtu.be/f7LQSIX9pi8)** System detects error, fixes code on retry
+
 A system that generates Python code using local LLMs, tests it in Docker sandboxes, and automatically fixes errors through iterative feedback.
 
 ![Pass@k Performance](reports/pass_rate_comparison.png)
