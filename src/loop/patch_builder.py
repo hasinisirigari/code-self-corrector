@@ -29,16 +29,15 @@ Return ONLY the fixed code, no explanation."""
 
 
 def _logic_prompt(code: str, error: ErrorInfo, tests: str) -> str:
-    # extract actual assertions from test code to show expected behavior
     test_hints = ""
     if tests:
         lines = [l.strip() for l in tests.split('\n') if 'assert' in l]
         if lines:
-            test_hints = "\nExpected behavior:\n" + "\n".join(lines[:5])
+            test_hints = "\n\nThese are the expected behaviors:\n" + "\n".join(lines[:5])
     
     failing = ", ".join(error.failing_tests) if error.failing_tests else "unknown"
     
-    return f"""This code produces wrong output. Fix the logic.
+    return f"""This code returns wrong output. The logic is incorrect.
 ```python
 {code}
 ```
@@ -46,7 +45,8 @@ def _logic_prompt(code: str, error: ErrorInfo, tests: str) -> str:
 Failing tests: {failing}
 {test_hints}
 
-Think step by step about what the function should do, then fix it.
+The assertions show what the function SHOULD return. Study them carefully.
+Fix the logic to match the expected output.
 Return ONLY the fixed code, no explanation."""
 
 

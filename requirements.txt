@@ -1,0 +1,6 @@
+requests
+pydantic
+rich
+datasets
+matplotlib
+streamlit

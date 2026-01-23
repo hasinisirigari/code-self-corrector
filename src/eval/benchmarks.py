@@ -43,14 +43,18 @@ def load_mbpp(limit: Optional[int] = None) -> List[Problem]:
         if limit and i >= limit:
             break
         
-        # mbpp has test_list with assert statements
         test_code = _convert_mbpp_tests(item["test_list"], item["task_id"])
+        func_name = _extract_function_name(item["code"])
+        
+        # building a proper prompt with function signature
+        sig = item["code"].split("\n")[0]  # get "def func_name(...):"
+        prompt = f"{item['prompt']}\n\n{sig}\n"
         
         problems.append(Problem(
             task_id=f"MBPP/{item['task_id']}",
-            prompt=item["prompt"] + "\n\n" + item["code"].split("def ")[0] if "def " in item["code"] else item["prompt"],
+            prompt=prompt,
             tests=test_code,
-            entry_point=_extract_function_name(item["code"]),
+            entry_point=func_name,
             source="mbpp"
         ))
     

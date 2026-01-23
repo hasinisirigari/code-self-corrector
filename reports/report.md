@@ -2,27 +2,27 @@
 
 ## Summary
 
-- Total problems: 10
-- Solved: 7 (70.0%)
-- Pass@1: 50.0%
+- Total problems: 30
+- Solved: 21 (70.0%)
+- Pass@1: 66.7%
 - Pass@2: 70.0%
 - Pass@3: 70.0%
-- Avg time: 69.84s
+- Avg time: 50.34s
 
-**Improvement from self-correction: 40.0%**
+**Improvement from self-correction: 4.9%**
 
 ## Error Distribution
 
 | Error Type | Count |
 |------------|-------|
-| NAME | 4 |
+| LOGIC | 17 |
 | SYNTAX | 2 |
-| LOGIC | 2 |
+| TYPE | 1 |
 
 ## Fixability Analysis
 
 | Error Type | Total | Fixed (1 retry) | Fixed (2 retries) |
 |------------|-------|-----------------|-------------------|
-| NAME | 3 | 66.7% | 66.7% |
 | SYNTAX | 1 | 0.0% | 0.0% |
-| LOGIC | 1 | 0.0% | 0.0% |
+| TYPE | 1 | 0.0% | 0.0% |
+| LOGIC | 8 | 12.5% | 12.5% |
