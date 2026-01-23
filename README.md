@@ -6,7 +6,7 @@
 
 🎬 **[Self-Correction in Action](https://youtu.be/f7LQSIX9pi8)** System detects error, fixes code on retry
 
-A system that generates Python code using local LLMs, tests it in Docker sandboxes, and automatically fixes errors through iterative feedback.
+A system that generates Python code using local LLMs, executes it in isolated Docker sandboxes, and iteratively repairs failures using execution feedback. The project studies how execution-grounded self-correction loops affect code generation reliability across different model capacities.
 
 ## Results
 Results shown below are from pilot evaluations conducted on limited subsets of the HumanEval and MBPP benchmarks (n ≈ 30). These experiments are intended to validate system behavior, error patterns, and the effect of iterative feedback rather than to report final benchmark performance. Full-scale evaluation on complete benchmark suites is planned as future work.
