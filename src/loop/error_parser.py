@@ -12,7 +12,7 @@ class ErrorCategory(str, Enum):
     """Categories for classifying errors."""
     SYNTAX = "SYNTAX"           # SyntaxError, IndentationError
     NAME = "NAME"               # NameError, ImportError
-    TYPE = "TYPE"               # TypeError, AttributeError
+    TYPE = "TYPE"               #TypeError, AttributeError
     LOGIC = "LOGIC"             # AssertionError (wrong output)
     RUNTIME = "RUNTIME"         # IndexError, KeyError, ZeroDivisionError, ValueError
     TIMEOUT = "TIMEOUT"         # Execution timeout
@@ -28,7 +28,8 @@ class ErrorInfo(BaseModel):
     failing_tests: List[str] = []            # Names of failing tests
     traceback: str = ""                      # Full traceback
     fixable_probability: float = 0.5         # Estimated probability of fixing
-    
+    expected_vs_actual: Optional[dict] = None # Expected vs actual values
+
     @property
     def signature(self) -> str:
         """Unique signature for detecting repeated errors."""
@@ -124,7 +125,8 @@ def parse_pytest_output(stdout: str, stderr: str, timeout_occurred: bool = False
         line_number=line_number,
         failing_tests=failing_tests,
         traceback=combined,
-        fixable_probability=fixable_probability
+        fixable_probability=fixable_probability,
+        expected_vs_actual=_get_expected_actual(combined)
     )
 
 
@@ -212,6 +214,20 @@ def _extract_failing_tests(output: str) -> List[str]:
             failing_tests.append(match)
     
     return failing_tests
+
+def _get_expected_actual(output: str) -> Optional[dict]:
+    result = {}
+    
+    m = re.search(r"assert\s+(.+?)\s*==\s*(.+?)(?:\n|$)", output)
+    if m:
+        result["actual"] = m.group(1).strip()[:100]
+        result["expected"] = m.group(2).strip()[:100]
+    
+    m = re.search(r"where\s+.+?=\s*\w+\((.+?)\)", output)
+    if m:
+        result["input"] = m.group(1).strip()[:100]
+    
+    return result if result else None
 
 
 def summarize_error(error_info: ErrorInfo) -> str:

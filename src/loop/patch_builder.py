@@ -36,13 +36,24 @@ def _logic_prompt(code: str, error: ErrorInfo, tests: str) -> str:
             test_hints = "\n\nExpected behavior from tests:"
             for line in lines[:5]:
                 test_hints += f"\n  {line}"
-            test_hints += "\n\nStudy these assertions. They show EXACTLY what the function should return for each input."
+    
+    # add expected vs actual if available
+    diff_hint = ""
+    if error.expected_vs_actual:
+        diff_hint = "\n\nWhat went wrong:"
+        if "input" in error.expected_vs_actual:
+            diff_hint += f"\n  Input: {error.expected_vs_actual['input']}"
+        if "expected" in error.expected_vs_actual:
+            diff_hint += f"\n  Expected: {error.expected_vs_actual['expected']}"
+        if "actual" in error.expected_vs_actual:
+            diff_hint += f"\n  Got: {error.expected_vs_actual['actual']}"
     
     return f"""The code below produces WRONG OUTPUT.
 ```python
 {code}
 ```
 {test_hints}
+{diff_hint}
 
 Think step by step:
 1. What does each test expect?
