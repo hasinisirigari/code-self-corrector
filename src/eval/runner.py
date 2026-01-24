@@ -11,6 +11,14 @@ from rich.table import Table
 from .benchmarks import Problem, load_humaneval, load_mbpp, load_all
 from ..loop.orchestrator import Orchestrator, SolutionResult
 
+import yaml
+
+def load_config():
+    try:
+        with open("config.yaml") as f:
+            return yaml.safe_load(f)
+    except:
+        return {}
 
 console = Console()
 

@@ -1,0 +1,36 @@
+#Evaluation Configuration
+# All runs should reference this config for reproducibility
+
+model:
+  name: "codellama:7b"
+  provider: "ollama"  
+  temperature: 0.2
+  max_tokens: 512
+
+sandbox:
+  timeout: 15
+  memory: "512m"
+  network: false
+
+evaluation:
+  max_attempts: 3
+  datasets:
+    - humaneval
+    - mbpp
+  pilot_size: 30  
+  full_size: null  
+
+# Model comparison
+comparison:
+  models:
+    - name: "codellama:7b"
+      provider: "ollama"
+    - name: "llama-3.3-70b-versatile"
+      provider: "groq"
+
+# Ablation strategies
+ablation:
+  strategies:
+    - basic          # error message only
+    - with_tests      # include test assertions
+    - step_by_step    # reasoning prompt

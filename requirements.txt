@@ -4,3 +4,5 @@ rich
 datasets
 matplotlib
 streamlit
+groq
+pyyaml
