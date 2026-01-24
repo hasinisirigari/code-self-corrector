@@ -1,82 +1,45 @@
 # System Architecture
 
 ## High-Level Overview
+```mermaid
+flowchart TB
+    UI[User Input<br>Function + Tests] --> ORCH
+    
+    subgraph ORCH[Orchestrator]
+        A1[Attempt 1<br>Generate] --> A2[Attempt 2<br>Repair]
+        A2 --> A3[Attempt 3<br>Repair]
+    end
+    
+    ORCH --> LLM[LLM Client<br>Codellama-7B / Llama-70B]
+    ORCH --> SANDBOX[Docker Sandbox<br>Isolated Execution]
+    
+    SANDBOX --> PARSER[Error Parser<br>Classify & Extract]
+    PARSER --> PATCH[Patch Builder<br>Repair Prompt]
+    PATCH --> LLM
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│                        USER INPUT                                │
-│              (Function description + Test cases)                 │
-└─────────────────────────────────────────────────────────────────┘
-                                │
-                                ▼
-┌─────────────────────────────────────────────────────────────────┐
-│                      ORCHESTRATOR                                │
-│                   (src/loop/orchestrator.py)                     │
-│                                                                  │
-│  ┌─────────────┐    ┌─────────────┐    ┌─────────────┐         │
-│  │  Attempt 1  │───▶│  Attempt 2  │───▶│  Attempt 3  │         │
-│  └─────────────┘    └─────────────┘    └─────────────┘         │
-│         │                  │                  │                  │
-│         ▼                  ▼                  ▼                  │
-│    [Generate]         [Repair]          [Repair]                │
-└─────────────────────────────────────────────────────────────────┘
-                                │
-                ┌───────────────┴───────────────┐
-                ▼                               ▼
-┌───────────────────────────┐   ┌───────────────────────────────┐
-│        LLM CLIENT         │   │       DOCKER SANDBOX          │
-│   (src/llm/ollama_client) │   │  (src/sandbox/docker_runner)  │
-│   (src/llm/groq_client)   │   │                               │
-│                           │   │  ┌─────────────────────────┐  │
-│  • Codellama-7B (local)   │   │  │   Isolated Container    │  │
-│  • Llama-70B (Groq API)   │   │  │   • No network          │  │
-│  • Code extraction        │   │  │   • 512MB memory        │  │
-│  • Prompt formatting      │   │  │   • 15s timeout         │  │
-│                           │   │  │   • Non-root user       │  │
-└───────────────────────────┘   │  └─────────────────────────┘  │
-                                │                               │
-                                │  • Runs pytest                │
-                                │  • Captures stdout/stderr     │
-                                │  • Returns pass/fail          │
-                                └───────────────────────────────┘
-                                                │
-                                                ▼
-                                ┌───────────────────────────────┐
-                                │       ERROR PARSER            │
-                                │  (src/loop/error_parser.py)   │
-                                │                               │
-                                │  • Classifies error type      │
-                                │  • Extracts line number       │
-                                │  • Identifies failing tests   │
-                                │  • Calculates fixability      │
-                                └───────────────────────────────┘
-                                                │
-                                                ▼
-                                ┌───────────────────────────────┐
-                                │       PATCH BUILDER           │
-                                │  (src/loop/patch_builder.py)  │
-                                │                               │
-                                │  • Builds repair prompt       │
-                                │  • Includes test assertions   │
-                                │  • Step-by-step reasoning     │
-                                └───────────────────────────────┘
-                                                │
-                                                ▼
-                                        [Back to LLM]
 
 ## Data Flow
+```mermaid
+flowchart LR
+    A[User Request] --> B[Generate Code]
+    B --> C[Test in Sandbox]
+    C --> D{Passed?}
+    D -->|Yes| E[SUCCESS]
+    D -->|No| F[Parse Error]
+    F --> G[Build Repair Prompt]
+    G --> B
 ```
-User Request
-     │
-     ▼
-┌─────────┐     ┌─────────┐     ┌─────────┐     ┌─────────┐
-│ Generate │────▶│  Test   │────▶│  Parse  │────▶│ Repair  │
-│  Code   │     │  Code   │     │  Error  │     │ Prompt  │
-└─────────┘     └─────────┘     └─────────┘     └─────────┘
-                     │                               │
-                     ▼                               │
-                [SUCCESS]◀───────────────────────────┘
-                    or
-              [MAX_ATTEMPTS]
+
+## Safety Architecture
+```mermaid
+flowchart TB
+    subgraph SAFETY[Safety Layers]
+        L1[1. Pre-execution<br>Block dangerous patterns]
+        L2[2. Container Isolation<br>No network, memory limit]
+        L3[3. Post-execution<br>Cleanup temp files]
+    end
+    
+    L1 --> L2 --> L3
 ```
 
 ## Component Responsibilities
@@ -94,42 +57,11 @@ User Request
 | Runner | `src/eval/runner.py` | Evaluation CLI |
 | Metrics | `src/eval/metrics.py` | Pass@k calculation |
 
-## Safety Architecture
-```
-┌─────────────────────────────────────────┐
-│            SAFETY LAYERS                │
-├─────────────────────────────────────────┤
-│ 1. Pre-execution: Guardrails check      │
-│    • Block os.system, eval, exec        │
-│    • Block file operations              │
-│    • Block network calls                │
-├─────────────────────────────────────────┤
-│ 2. Container isolation:                 │
-│    • --network=none                     │
-│    • --memory=512m                      │
-│    • --timeout=15s                      │
-│    • --user=testrunner (non-root)       │
-├─────────────────────────────────────────┤
-│ 3. Post-execution: Cleanup              │
-│    • Remove temp files                  │
-│    • Kill container                     │
-└─────────────────────────────────────────┘
-```
+## Sandbox Security
 
-## Evaluation Pipeline
-```
-┌──────────────┐     ┌──────────────┐     ┌──────────────┐
-│   Load       │────▶│    Run       │────▶│   Generate   │
-│  Benchmark   │     │  Evaluation  │     │   Reports    │
-│  (HumanEval/ │     │  (n problems)│     │   & Charts   │
-│   MBPP)      │     │              │     │              │
-└──────────────┘     └──────────────┘     └──────────────┘
-                            │
-                            ▼
-                     ┌──────────────┐
-                     │   Metrics    │
-                     │  • Pass@1    │
-                     │  • Pass@3    │
-                     │  • Error dist│
-                     │  • Fixability│
-                     └──────────────┘
+| Layer | Protection |
+|-------|------------|
+| Pre-execution | Block os.system, eval, exec, file ops, network |
+| Container | --network=none, --memory=512m, --timeout=15s |
+| User | Non-root testrunner user |
+| Cleanup | Remove temp files, kill container |
