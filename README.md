@@ -8,6 +8,10 @@
 
 A system that generates Python code using local LLMs, executes it in isolated Docker sandboxes, and iteratively repairs failures using execution feedback. The project studies how execution-grounded self-correction loops affect code generation reliability across different model capacities.
 
+## Architecture
+
+See [ARCHITECTURE.md](ARCHITECTURE.md) for detailed system design and component diagrams.
+
 ## Results
 Results shown below are from pilot evaluations conducted on limited subsets of the HumanEval and MBPP benchmarks (n ≈ 30). These experiments are intended to validate system behavior, error patterns, and the effect of iterative feedback rather than to report final benchmark performance. Full-scale evaluation on complete benchmark suites is planned as future work.
 
