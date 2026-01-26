@@ -66,6 +66,20 @@ Prompt engineering had massive impact on baseline performance.
 - Malicious code detection before execution
 - Non-root user in container
 
+## Ablation Study: Prompt Strategies
+
+Tested 3 repair prompt strategies on 10 MBPP problems:
+
+| Strategy | Pass@1 | Pass@3 | Improvement |
+|----------|--------|--------|-------------|
+| Basic (error only) | 30.0% | 30.0% | 0.0% |
+| With test assertions | 20.0% | 20.0% | 0.0% |
+| Step-by-step reasoning | 20.0% | 20.0% | 0.0% |
+
+**Finding:** On this sample, no prompt strategy showed improvement from self-correction. This suggests that for problems the 7B model fails on MBPP, the errors are fundamental logic gaps that prompt engineering alone cannot fix.
+
+However, earlier runs showed 33% improvement on MBPP with step-by-step prompts, indicating high variance due to LLM non-determinism.
+
 ## Conclusions
 
 1. **Self-correction works best for weaker models** - 16.7% improvement for 7B vs 0% for 70B

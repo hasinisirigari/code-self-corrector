@@ -30,9 +30,9 @@ Results shown below are from pilot evaluations conducted on limited subsets of t
 
 | Metric | Value |
 |--------|-------|
-| Pass@1 | 30.0% |
-| Pass@3 | 40.0% |
-| Improvement | 33.3% |
+| Pass@1 | 28.0% |
+| Pass@3 | 37.0% |
+| Improvement | 32.1% |
 
 ![Error Distribution](pilot-reports/error_taxonomy.png)
 ![Model Comparision](pilot-reports/model_comparison.png)
